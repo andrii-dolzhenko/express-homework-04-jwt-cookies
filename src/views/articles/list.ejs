@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11243d">
+    <title>Articles | Express Homework 03</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="/users" aria-label="Express Studio home">
+            <span class="brand-mark" aria-hidden="true">E3</span>
+            <span class="brand-copy"><strong>Express Studio</strong><small>EXPRESS / HOMEWORK 03 / PUG + EJS</small></span>
+          </a>
+          <nav class="site-nav" aria-label="Main navigation">
+            <a class="nav-link" href="/users">Users</a>
+            <a class="nav-link" href="/articles" aria-current="page">Articles</a>
+          </nav>
+        </div>
+      </header>
+      <main class="container page-content">
+        <section class="page-heading" aria-labelledby="page-title">
+          <p class="eyebrow">EJS · SERVER-RENDERED</p>
+          <h1 id="page-title">Articles</h1>
+          <p class="lead">Browse articles from our Express app. Each page is rendered from live server-side data.</p>
+        </section>
+        <section aria-labelledby="records-title">
+          <div class="section-heading">
+            <h2 id="records-title">Article library</h2>
+            <span class="count"><%= articles.length %> <%= articles.length === 1 ? 'record' : 'records' %></span>
+          </div>
+          <% if (articles.length) { %>
+            <ul class="record-grid">
+              <% articles.forEach((article) => { %>
+                <li>
+                  <a class="record-card" href="/articles/<%= encodeURIComponent(article.id) %>">
+                    <span class="record-kicker">ARTICLE</span>
+                    <strong class="record-title"><%= article.title %></strong>
+                    <span class="record-id">ID: <%= article.id %></span>
+                    <span class="record-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              <% }) %>
+            </ul>
+          <% } else { %>
+            <p class="empty-state">No articles found.</p>
+          <% } %>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <div class="container footer-inner"><span>Copyright © 2026 Andrii Dolzhenko.</span></div>
+      </footer>
+    </div>
+  </body>
+</html>

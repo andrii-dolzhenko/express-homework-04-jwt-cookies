@@ -1,0 +1,44 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="theme-color" content="#11243d")
+    title Users | Express Homework 03
+    link(rel="icon" type="image/svg+xml" href="/assets/favicon.svg")
+    link(rel="stylesheet" href="/assets/css/styles.css")
+  body
+    .site-shell
+      header.site-header
+        .container.header-inner
+          a.brand(href="/users" aria-label="Express Studio home")
+            span.brand-mark(aria-hidden="true") E3
+            span.brand-copy
+              strong Express Studio
+              small EXPRESS / HOMEWORK 03 / PUG + EJS
+          nav.site-nav(aria-label="Main navigation")
+            a.nav-link(href="/users" aria-current="page") Users
+            a.nav-link(href="/articles") Articles
+      main.container.page-content
+        section.page-heading(aria-labelledby="page-title")
+          p.eyebrow PUG · SERVER-RENDERED
+          h1#page-title Users
+          p.lead Meet the users in our Express app. Each page is rendered from live server-side data.
+        section(aria-labelledby="records-title")
+          .section-heading
+            h2#records-title User directory
+            span.count= `${users.length} ${users.length === 1 ? 'record' : 'records'}`
+          if users.length
+            ul.record-grid
+              each user in users
+                li
+                  a.record-card(href='/users/' + encodeURIComponent(user.id))
+                    span.record-kicker USER PROFILE
+                    strong.record-title= user.name
+                    span.record-id= `ID: ${user.id}`
+                    span.record-arrow(aria-hidden="true") →
+          else
+            p.empty-state No users found.
+      footer.site-footer
+        .container.footer-inner
+          span Copyright © 2026 Andrii Dolzhenko.
