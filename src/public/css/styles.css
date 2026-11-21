@@ -409,3 +409,58 @@ h1 {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* HW04: cookie-persisted Light/Dark appearance. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e8f1f9;
+  --muted: #b4c3d3;
+  --subtle: #93a9bb;
+  --brand: #7ee3dc;
+  --brand-dark: #89e9e2;
+  --line: #365066;
+  --surface: #1b344a;
+  --page: #102538;
+}
+
+html[data-theme="dark"] .site-footer {
+  background: var(--surface);
+}
+
+.theme-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-btn {
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 9px;
+  background: transparent;
+  color: #e0ecf6;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.theme-btn[aria-pressed="true"] {
+  border-color: #b5f5ef;
+  background: #b5f5ef;
+  color: #133647;
+}
+
+.theme-btn:hover,
+.theme-btn:focus-visible {
+  border-color: #b5f5ef;
+}
+
+@media (max-width: 800px) {
+  .header-inner { flex-wrap: wrap; }
+}
+
+@media (max-width: 580px) {
+  .theme-form { width: 100%; }
+  .theme-btn { flex: 1; }
+}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="<%= theme %>">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,6 +21,11 @@
             <a class="nav-link" href="/users">Users</a>
             <a class="nav-link" href="/articles" aria-current="page">Articles</a>
           </nav>
+          <form class="theme-form" action="/theme" method="post" aria-label="Choose color theme">
+            <input type="hidden" name="next" value="<%= currentPath %>">
+            <button class="theme-btn" type="submit" name="theme" value="light" aria-pressed="<%= theme === 'light' ? 'true' : 'false' %>">Light</button>
+            <button class="theme-btn" type="submit" name="theme" value="dark" aria-pressed="<%= theme === 'dark' ? 'true' : 'false' %>">Dark</button>
+          </form>
         </div>
       </header>
       <main class="container page-content">

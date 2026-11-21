@@ -1,6 +1,8 @@
 // Express REST API із модульною архітектурою та навчальними middleware
 
 import express from 'express'
+import cookieParser from 'cookie-parser'
+import { loadTheme } from './middlewares/theme.mjs'
 import { resolve } from 'node:path'
 import router from './routes/index.mjs'
 import { logRequests } from './middlewares/logRequests.mjs'
@@ -15,6 +17,9 @@ app.set('view engine', 'pug')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+// Read theme and JWT cookies before the route handlers.
+app.use(cookieParser())
+app.use(loadTheme)
 
 // Глобальний middleware логування після парсерів тіла запиту
 app.use(logRequests)
