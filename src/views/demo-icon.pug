@@ -1,0 +1,40 @@
+doctype html
+html(lang="en" data-theme=theme)
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="theme-color" content="#11243d")
+    title Site Icon | Express Homework 04
+    link(rel="icon" href="/favicon.ico")
+    link(rel="stylesheet" href="/assets/css/styles.css")
+    link(rel="stylesheet" href="/assets/css/demo.css")
+  body
+    .site-shell
+      header.site-header
+        .container.header-inner
+          a.brand(href="/demo" aria-label="Express Studio demo home")
+            span.brand-mark(aria-hidden="true") E4
+            span.brand-copy
+              strong Express Studio
+              small EXPRESS / HOMEWORK 04 / JWT + COOKIES
+          nav.site-nav(aria-label="Main navigation")
+            a.nav-link(href="/demo" aria-current="page") Demo
+            a.nav-link(href="/users") Users
+            a.nav-link(href="/articles") Articles
+          form.theme-form(action="/theme" method="post" aria-label="Choose color theme")
+            input(type="hidden" name="next" value="/demo/icon")
+            button.theme-btn(type="submit" name="theme" value="light" aria-pressed=String(theme === "light")) Light
+            button.theme-btn(type="submit" name="theme" value="dark" aria-pressed=String(theme === "dark")) Dark
+      main.container.page-content
+        a.back-link(href="/demo") ← Back to interactive demo
+        section.detail-panel(aria-labelledby="icon-title")
+          p.eyebrow STATIC ASSETS · HW-04
+          h1#icon-title Site icon
+          p.lead The same favicon.ico is loaded by all PUG and EJS pages.
+          .demo-icon-preview
+            img(src="/favicon.ico" width="96" height="96" alt="Express Studio E4 favicon")
+          p.demo-icon-note
+            | This preview keeps the site navigation available. You can also #[a.text-link(href="/favicon.ico") open the original ICO file].
+      footer.site-footer
+        .container.footer-inner
+          span Copyright © 2026 Andrii Dolzhenko.

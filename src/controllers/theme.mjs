@@ -23,6 +23,6 @@ export function saveTheme(req, res) {
     return res.status(200).json({ theme })
   }
   const safePath = typeof nextPage === 'string' &&
-    /^(\/users|\/articles)(?:\/[^/?#]+)?$/.test(nextPage) ? nextPage : '/users'
+    /^\/(?:users|articles|demo)(?:\/[^\/?#]+)?$/.test(nextPage) ? nextPage : '/users'
   return res.redirect(303, safePath)
 }

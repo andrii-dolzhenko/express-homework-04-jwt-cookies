@@ -1,0 +1,142 @@
+doctype html
+html(lang="en" data-theme=theme)
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="theme-color" content="#11243d")
+    meta(name="description" content="Interactive local Express Homework 04 demo: theme cookies and JWT authentication")
+    title Interactive Demo | Express Homework 04
+    link(rel="icon" href="/favicon.ico" sizes="any")
+    link(rel="stylesheet" href="/assets/css/styles.css")
+    link(rel="stylesheet" href="/assets/css/demo.css")
+    script(src="/assets/js/demo.js" defer)
+  body
+    .site-shell
+      header.site-header
+        .container.header-inner
+          a.brand(href="/demo" aria-label="Express Studio demo home")
+            span.brand-mark(aria-hidden="true") E4
+            span.brand-copy
+              strong Express Studio
+              small EXPRESS / HOMEWORK 04 / JWT + COOKIES
+          nav.site-nav(aria-label="Main navigation")
+            a.nav-link(href="/demo" aria-current="page") Demo
+            a.nav-link(href="/users") Users
+            a.nav-link(href="/articles") Articles
+          form.theme-form(action="/theme" method="post" aria-label="Choose color theme")
+            input(type="hidden" name="next" value="/demo")
+            button.theme-btn(type="submit" name="theme" value="light" aria-pressed=String(theme === "light")) Light
+            button.theme-btn(type="submit" name="theme" value="dark" aria-pressed=String(theme === "dark")) Dark
+      main.container.demo-main
+        section.demo-intro(aria-labelledby="demo-title")
+          .demo-intro-copy
+            p.eyebrow LOCAL · LIVE EXPRESS SERVER
+            h1#demo-title Authentication, made visible.
+            p.lead Try the complete HW-04 workflow in your browser. Switch appearance, create an account, verify access, and sign out. Every action calls the real Express API.
+            .demo-tags(aria-label="Implemented features")
+              span.feature-chip
+                span.feature-dot(aria-hidden="true")
+                |  Favicon ICO
+              span.feature-chip
+                span.feature-dot(aria-hidden="true")
+                |  Theme cookies
+              span.feature-chip
+                span.feature-dot(aria-hidden="true")
+                |  Signed JWT
+          .intro-decoration(aria-hidden="true")
+            span.decoration-ring
+            span.decoration-center E4
+        .demo-layout
+          .demo-main-column
+            section.demo-panel(aria-labelledby="theme-title")
+              .panel-heading
+                .step-number 01
+                .panel-heading-copy
+                  p.panel-eyebrow PREFERENCE
+                  h2#theme-title Choose your theme
+              p.panel-description The choice is saved as an HttpOnly cookie and carried between PUG and EJS pages.
+              .theme-options(role="group" aria-label="Choose theme")
+                button.demo-theme-choice(type="button" data-theme-choice="light" aria-pressed=String(theme === 'light'))
+                  span.theme-choice-icon(aria-hidden="true") ☀
+                  span Light
+                button.demo-theme-choice(type="button" data-theme-choice="dark" aria-pressed=String(theme === 'dark'))
+                  span.theme-choice-icon(aria-hidden="true") ☾
+                  span Dark
+              p#theme-feedback.demo-feedback(role="status" aria-live="polite") Current preference: #{theme}.
+            section.demo-panel(aria-labelledby="auth-title")
+              .panel-heading
+                .step-number 02
+                .panel-heading-copy
+                  p.panel-eyebrow AUTHENTICATION
+                  h2#auth-title Create an account or sign in
+              .demo-tabs(role="group" aria-label="Authentication method")
+                button.demo-tab(type="button" aria-pressed="true" data-auth-mode="register") Register
+                button.demo-tab(type="button" aria-pressed="false" data-auth-mode="login") Sign in
+              form#auth-form.demo-form
+                label(for="demo-username") Username
+                input#demo-username(type="text" name="username" autocomplete="username" minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]{3,32}" placeholder="e.g. demo_student" required)
+                label(for="demo-password") Password
+                input#demo-password(type="password" name="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="At least 8 characters" required)
+                p.form-hint Usernames use letters, numbers, _ or -. Passwords stay on the server as bcrypt hashes.
+                button#auth-submit.demo-primary-button(type="submit") Create account
+              p#auth-feedback.demo-feedback(role="status" aria-live="polite")
+            section.demo-panel(aria-labelledby="access-title")
+              .panel-heading
+                .step-number 03
+                .panel-heading-copy
+                  p.panel-eyebrow PROTECTED ENDPOINT
+                  h2#access-title Verify your access
+              p.panel-description This action calls GET /auth/me. Without a valid JWT, the API responds with HTTP 401.
+              .demo-button-row
+                button#check-access.demo-secondary-button(type="button") Check /auth/me
+                button#demo-logout.demo-outline-button(type="button" disabled) Sign out
+              p#access-feedback.demo-feedback(role="status" aria-live="polite")
+              pre#auth-response.demo-response(aria-label="API response") Ready to verify your identity.
+          aside.demo-side-column(aria-label="Live demo information")
+            section.status-card(aria-labelledby="status-title")
+              .status-topline
+                span.status-live-dot(aria-hidden="true")
+                span LIVE AUTH STATE
+              h2#status-title Session overview
+              p#auth-state-label.auth-state-label Checking session…
+              p#auth-state-detail.status-description The browser sends the JWT cookie automatically, but JavaScript cannot read it.
+              .status-rule
+              dl.status-meta
+                div
+                  dt Token storage
+                  dd HttpOnly cookie
+                div
+                  dt JWT expiry
+                  dd 1 hour
+                div
+                  dt Account storage
+                  dd In memory
+            section.info-card(aria-labelledby="pages-title")
+              p.panel-eyebrow PREVIOUS HOMEWORK
+              h2#pages-title Explore the pages
+              p Both server-side template engines use the same saved appearance.
+              a.quick-link(href="/users")
+                span
+                  strong User directory
+                  small Server-rendered PUG
+                span.quick-link-arrow(aria-hidden="true") ↗
+              a.quick-link(href="/articles")
+                span
+                  strong Article library
+                  small Server-rendered EJS
+                span.quick-link-arrow(aria-hidden="true") ↗
+              a.quick-link(href="/demo/icon")
+                span
+                  strong Site icon
+                  small Static favicon.ico
+                span.quick-link-arrow(aria-hidden="true") ↗
+            section.info-card(aria-labelledby="session-title")
+              p.panel-eyebrow EXISTING SERVER SESSION
+              h2#session-title Visit counter
+              p A separate session cookie from HW-03. It is not the JWT.
+              button#session-check.demo-secondary-button(type="button") Increment visits
+              p#session-feedback.demo-feedback(role="status" aria-live="polite")
+            p.demo-disclaimer Local educational demo. Accounts and session data reset when the server restarts. Not a production authentication service.
+      footer.site-footer
+        .container.footer-inner
+          span Copyright © 2026 Andrii Dolzhenko.

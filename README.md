@@ -133,3 +133,43 @@ src/
 ---
 
 Copyright © 2026 Andrii Dolzhenko.
+
+## Local interactive demo (optional)
+
+Start the Express backend (`npm start`) and open **http://localhost:3000/demo**.
+The interactive dashboard calls the actual backend; it does not simulate JWT.
+
+1. Switch Light/Dark and open Users (PUG) or Articles (EJS) to confirm the cookie.
+2. Register a unique username (3–32 letters, numbers, `_` or `-`) with a password
+   8–72 characters long. The server stores only a bcrypt password hash.
+3. Check the protected `/auth/me` endpoint: it responds `200` when signed in.
+4. Sign out and check again: it responds `401` without a JWT.
+5. Switch to Sign in to repeat the flow and optionally test the HW03 session counter.
+
+GET `/demo` renders a PUG dashboard. Static assets are served at
+`/assets/js/demo.js` and `/assets/css/demo.css`. The dashboard uses
+`fetch` with same-origin cookies and never reads the HttpOnly JWT token.
+
+**Note:** This is an **optional local teaching demo**, not an additional
+requirement from the presentation. GitHub Pages cannot execute Express,
+so a Pages-hosted copy would only be a static visual preview.
+
+
+## Demo navigation
+
+The **Express Studio** logo and the **Demo** link on all four PUG/EJS user/article
+pages return to `/demo`. The user and article list pages also show a visible
+"Back to demo" link. The **Site icon** tile on `/demo` opens `/demo/icon`, a
+navigable PUG preview of the real `/favicon.ico` file. The original favicon
+remains directly available at `/favicon.ico`, as required by the assignment.
+
+
+## Unified responsive header
+
+All six server-rendered pages (Demo, Site icon, two PUG pages, two EJS pages)
+use the same header: logo on the left, **Demo / Users / Articles** centered,
+and Light/Dark controls on the right. At medium widths the navigation moves to
+a centered second row; on narrow mobile screens the header stacks into three
+consistent rows. All theme buttons write the same validated cookie, including
+on `/demo` and `/demo/icon` (with safe local form redirects). The inline theme
+control on the Demo dashboard also updates header button state without a reload.

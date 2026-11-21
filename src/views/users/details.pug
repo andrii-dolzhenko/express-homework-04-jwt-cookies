@@ -12,18 +12,19 @@ html(lang="en" data-theme=theme)
     .site-shell
       header.site-header
         .container.header-inner
-          a.brand(href="/users" aria-label="Express Studio home")
+          a.brand(href="/demo" aria-label="Express Studio demo home")
             span.brand-mark(aria-hidden="true") E4
             span.brand-copy
               strong Express Studio
-              small EXPRESS / HOMEWORK 04 / STATIC + COOKIES + JWT
+              small EXPRESS / HOMEWORK 04 / JWT + COOKIES
           nav.site-nav(aria-label="Main navigation")
+            a.nav-link(href="/demo") Demo
             a.nav-link(href="/users" aria-current="page") Users
             a.nav-link(href="/articles") Articles
           form.theme-form(action="/theme" method="post" aria-label="Choose color theme")
             input(type="hidden" name="next" value=currentPath)
-            button.theme-btn(type="submit" name="theme" value="light" aria-pressed=(theme === 'light')) Light
-            button.theme-btn(type="submit" name="theme" value="dark" aria-pressed=(theme === 'dark')) Dark
+            button.theme-btn(type="submit" name="theme" value="light" aria-pressed=String(theme === 'light')) Light
+            button.theme-btn(type="submit" name="theme" value="dark" aria-pressed=String(theme === 'dark')) Dark
       main.container.page-content
         a.back-link(href="/users") ← Back to users
         section.detail-panel(aria-labelledby="page-title")
