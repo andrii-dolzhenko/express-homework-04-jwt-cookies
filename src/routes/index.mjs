@@ -4,6 +4,7 @@ import usersRouter from './users.mjs'
 import articlesRouter from './articles.mjs'
 import sessionRouter from './session.mjs'
 import themeRouter from './theme.mjs'
+import authRouter from './auth.mjs'
 
 const router = Router()
 
@@ -12,5 +13,6 @@ router.use('/users', usersRouter)
 router.use('/articles', articlesRouter)
 router.use('/session', sessionRouter)
 router.use('/theme', themeRouter)
+router.use('/auth', authRouter)
 
 export default router
