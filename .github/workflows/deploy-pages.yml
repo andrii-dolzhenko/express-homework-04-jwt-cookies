@@ -1,0 +1,92 @@
+name: Deploy static Express preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/build-pages-preview.mjs'
+      - 'scripts/check-pages-preview.mjs'
+      - 'scripts/pages-preview.js'
+      - '.github/workflows/deploy-pages.yml'
+      - 'package.json'
+      - 'yarn.lock'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/build-pages-preview.mjs'
+      - 'scripts/check-pages-preview.mjs'
+      - 'scripts/pages-preview.js'
+      - '.github/workflows/deploy-pages.yml'
+      - 'package.json'
+      - 'yarn.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and validate static preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Install Yarn Classic
+        run: npm install --global yarn@1.22.22
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Run full regression suite
+        run: npm test
+
+      - name: Check preview scripts
+        run: |
+          node --check scripts/build-pages-preview.mjs
+          node --check scripts/check-pages-preview.mjs
+          node --check scripts/pages-preview.js
+
+      - name: Export real Express-rendered pages
+        run: node scripts/build-pages-preview.mjs
+
+      - name: Verify static pages and links
+        run: node scripts/check-pages-preview.mjs
+
+      - name: Configure GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .pages-dist
+
+  deploy:
+    name: Publish static preview
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
