@@ -53,6 +53,7 @@ function makeThemeControlsClientOnly(document) {
   for (const form of [...document.querySelectorAll('form.theme-form')]) {
     const wrapper = document.createElement('div')
     wrapper.className = form.className
+    wrapper.setAttribute('role', 'group')
     wrapper.setAttribute('aria-label', 'Preview-only color scheme')
     for (const button of form.querySelectorAll('button.theme-btn')) {
       button.type = 'button'
@@ -94,9 +95,6 @@ function disableServerControls(document) {
 
   const dot = document.querySelector('.status-live-dot')
   if (dot) dot.remove()
-
-  const authForm = document.querySelector('#auth-form')
-  if (authForm) authForm.setAttribute('aria-disabled', 'true')
 
   const themeDescription = document.querySelector('#theme-title')?.closest('section')?.querySelector('.panel-description')
   if (themeDescription) {

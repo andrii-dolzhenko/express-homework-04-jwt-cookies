@@ -33,7 +33,7 @@ html(lang="en" data-theme=theme)
             p.eyebrow LOCAL · LIVE EXPRESS SERVER
             h1#demo-title Authentication, made visible.
             p.lead Try the complete HW-04 workflow in your browser. Switch appearance, create an account, verify access, and sign out. Every action calls the real Express API.
-            .demo-tags(aria-label="Implemented features")
+            .demo-tags(role="group" aria-label="Implemented features")
               span.feature-chip
                 span.feature-dot(aria-hidden="true")
                 |  Favicon ICO
@@ -91,7 +91,7 @@ html(lang="en" data-theme=theme)
                 button#check-access.demo-secondary-button(type="button") Check /auth/me
                 button#demo-logout.demo-outline-button(type="button" disabled) Sign out
               p#access-feedback.demo-feedback(role="status" aria-live="polite")
-              pre#auth-response.demo-response(aria-label="API response") Ready to verify your identity.
+              pre#auth-response.demo-response(role="region" aria-label="API response") Ready to verify your identity.
           aside.demo-side-column(aria-label="Live demo information")
             section.status-card(aria-labelledby="status-title")
               .status-topline
