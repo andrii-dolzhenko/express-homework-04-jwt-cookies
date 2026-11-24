@@ -24,6 +24,8 @@ app.use(sessionMiddleware)
 
 // Shared stylesheet and favicon for server-rendered PUG / EJS pages.
 app.use('/assets', express.static(resolve(process.cwd(), 'src/public')))
+// Also expose /favicon.ico at the site's root as required by HW04.
+app.use(express.static(resolve(process.cwd(), 'src/public'), { index: false }))
 
 // Маршрути
 app.use(router)
