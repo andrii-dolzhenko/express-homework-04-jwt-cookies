@@ -49,7 +49,7 @@ The `/demo` page runs against the real local Express application, not mocked API
 
 Usernames accept 3–32 letters, digits, underscores, or hyphens. Passwords must be 8–72 characters long.
 
-**Demo availability:** `/demo` is available when the Node.js server is running. GitHub Pages cannot execute this Express backend or its JWT and session routes. No publicly hosted live demo is configured yet.
+**Preview:** [Open the static GitHub Pages preview](https://andrii-dolzhenko.github.io/express-homework-04-jwt-cookies/). It contains Express-rendered pages, responsive navigation, and browser-only theme appearance. Registration, JWT, cookie persistence, server sessions, and API mutations are deliberately disabled in the preview. Run `npm start` locally to test those features with the real backend.
 
 ## Routes
 
