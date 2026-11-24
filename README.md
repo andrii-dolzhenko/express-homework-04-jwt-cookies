@@ -1,17 +1,25 @@
-# ДЗ 63.1 — Робота зі статичними файлами, Cookies та JWT на сервері Express
+# Express.js · Homework 04 · JWT · Cookies
 
-**Express Studio E4** — навчальний застосунок на Node.js 24 та Express 5. Проєкт продовжує попередні ДЗ: зберігає REST CRUD для користувачів і статей, рендеринг PUG/EJS, middleware та сесії. У ДЗ 63.1 додано favicon, збереження теми в cookies і JWT-автентифікацію. Для демонстрації реалізовано інтерактивну сторінку `/demo`.
+**Express Studio E4** is an Express 5 application that combines server-rendered PUG and EJS pages, REST endpoints, persistent Light/Dark preferences, and JWT-based authentication. An interactive dashboard demonstrates the full workflow against the running Express backend.
 
-## Реалізовані вимоги ДЗ 63.1
+Built with Node.js 24. All application records and demo accounts are stored in memory.
 
-- **Статичні файли:** `src/public/favicon.ico` доступний за `/favicon.ico` та підключений у всіх PUG/EJS HTML-шаблонах. Стилі й клієнтський JS передаються через `express.static()`.
-- **Cookies:** `cookie-parser` зчитує вибір теми (`light` або `dark`) з cookie `hw04.theme`. Маршрут `POST /theme` зберігає тему; вона застосовується на сторінках PUG, EJS і демо.
-- **JWT:** `POST /auth/register` і `POST /auth/login` створюють підписаний JWT. Middleware `requireJwt` перевіряє токен для `GET /auth/me`. Токен зберігається в cookie `hw04.token` з атрибутом `HttpOnly`.
-- **Додатково:** паролі зберігаються як bcrypt-хеші; передбачені вихід з облікового запису, валідація введення, захист від повторної реєстрації однакового username та автоматичні тести.
+## Features
 
-## Встановлення та запуск
+- **Static assets:** Express serves shared styles, browser scripts, and `favicon.ico` at `/favicon.ico`. Both PUG and EJS templates reference the icon.
+- **Cookie-based preferences:** The Light/Dark theme is stored as `hw04.theme` via `cookie-parser` and applied consistently across the dashboard and server-rendered pages.
+- **JWT authentication:** Register, sign in, inspect the protected current-user endpoint, and sign out. Signed JWTs are stored in an `HttpOnly` cookie (`hw04.token`); Bearer authentication is supported for API requests.
+- **Password handling:** `bcryptjs` password hashes, input validation, and case-insensitive duplicate-username prevention.
+- **Existing Express API:** User/article CRUD, request logging, validation, educational authorization examples, and a server-side session counter.
+- **Responsive UI:** Consistent navigation and theme controls across Demo, Users, and Articles, including mobile layouts.
 
-**Передумови:** Node.js 24 і npm. Для відтворюваного встановлення використовується Yarn Classic 1.22.22 і файл `yarn.lock`.
+## Technology
+
+Node.js 24 · Express 5 · PUG · EJS · cookie-parser · jsonwebtoken · bcryptjs · express-session · Vitest · Supertest
+
+## Installation and local development
+
+**Prerequisites:** Node.js 24 and npm. Dependencies are locked with Yarn Classic 1.22.22 (`yarn.lock`).
 
 ```bash
 git clone https://github.com/andrii-dolzhenko/express-homework-04-jwt-cookies.git
@@ -19,69 +27,82 @@ cd express-homework-04-jwt-cookies
 
 npm exec --yes --package=yarn@1.22.22 -- yarn install --frozen-lockfile
 npm test
-
-# Для поточного запуску створюємо локальний секрет JWT.
-# Не додавайте реальний секрет до Git-репозиторію.
 JWT_SECRET="$(openssl rand -hex 32)" npm start
 ```
 
-Відкрийте **http://localhost:3000/demo**. Сервер використовує порт `3000`. Для перевірки шаблонів напряму також доступні `/users` і `/articles` (у браузері сторінки віддаються як HTML).
+Open **http://localhost:3000/demo**. Additional pages: [Users](http://localhost:3000/users) (PUG) and [Articles](http://localhost:3000/articles) (EJS).
 
-Якщо змінна `JWT_SECRET` не задана, застосунок створює випадковий ключ під час запуску. Після перезапуску попередні JWT перестануть бути дійсними. `NODE_ENV=production` вмикає атрибут `Secure` для cookies, тому для локального HTTP не встановлюйте цей режим.
+The server currently listens on port `3000`. The command above generates a JWT signing secret for the current server process. Without `JWT_SECRET`, the application generates a random secret at startup; previously issued JWTs become invalid after restart.
 
-## Інтерактивне демо
+For local HTTP testing, do not set `NODE_ENV=production`: production mode marks JWT and theme cookies as `Secure`, requiring HTTPS.
 
-На сторінці `/demo` можна послідовно перевірити:
+## Interactive demo
 
-1. Перемикання теми **Light / Dark**, оновлення сторінки й переходи між Users (PUG) та Articles (EJS).
-2. Реєстрацію: username довжиною 3–32 символи (латинські літери, цифри, `_`, `-`) та пароль довжиною 8–72 символи.
-3. Виклик захищеного `GET /auth/me`: після входу відповідь `200`, без авторизації — `401`.
-4. Вихід через `POST /auth/logout`, після якого доступ до `/auth/me` зникає.
-5. Повторний вхід і окремий лічильник відвідувань на базі `express-session`.
+The `/demo` page runs against the real local Express application, not mocked API responses. It supports:
 
-Сторінка `/demo/icon` показує favicon із можливістю повернутися до демо. Спільний адаптивний header використовується на Demo, PUG та EJS-сторінках. Усі кнопки Light/Dark звертаються до одного серверного механізму збереження теми.
+1. Switching Light/Dark themes and verifying the preference survives reloads and navigation.
+2. Registering a demo account or signing in again.
+3. Calling `GET /auth/me` to inspect authenticated (`200`) and unauthenticated (`401`) responses.
+4. Signing out, verifying that access is denied, and signing back in.
+5. Using the separate `express-session` visit counter.
+6. Opening PUG/EJS pages and the navigable favicon preview at `/demo/icon`.
 
-**Це реальне локальне демо Express, а не статичний макет.** GitHub Pages не запускає Node.js, тому авторизація та серверні сесії працюють після локального запуску `npm start`.
+Usernames accept 3–32 letters, digits, underscores, or hyphens. Passwords must be 8–72 characters long.
 
-## HTTP-маршрути
+**Demo availability:** `/demo` is available when the Node.js server is running. GitHub Pages cannot execute this Express backend or its JWT and session routes. No publicly hosted live demo is configured yet.
 
-| Метод | Маршрут | Призначення / результат |
+## Routes
+
+### Pages and static files
+
+| Method | Path | Description |
 | --- | --- | --- |
-| `GET` | `/` | Початкова текстова відповідь Express |
-| `GET` | `/demo` | Інтерактивне демо (PUG) |
-| `GET` | `/demo/icon` | Сторінка перегляду favicon (PUG) |
-| `GET` | `/users` | Список користувачів: PUG при `Accept: text/html`, інакше JSON |
-| `GET` | `/users/:userId` | Користувач за ID: PUG або JSON |
-| `POST` | `/users` | Створити користувача (`201`) |
-| `PUT` | `/users/:userId` | Оновити користувача |
-| `DELETE` | `/users/:userId` | Видалити користувача (`204`) |
-| `POST` | `/users/strict` | Навчальна демонстрація Basic Authorization |
-| `GET` | `/articles` | Список статей: EJS при `Accept: text/html`, інакше JSON |
-| `GET` | `/articles/:articleId` | Стаття за ID: EJS або JSON |
-| `POST` | `/articles` | Створити статтю (`201`) |
-| `PUT` | `/articles/:articleId` | Оновити статтю |
-| `DELETE` | `/articles/:articleId` | Видалити статтю (`204`) |
-| `POST` | `/articles/strict` | Навчальна демонстрація Basic Authorization |
-| `GET` | `/session` | Збільшити лічильник відвідувань у сесії |
-| `DELETE` | `/session` | Скинути поточну сесію (`204`) |
-| `GET` | `/theme` | Отримати поточну тему у форматі JSON |
-| `POST` | `/theme` | Зберегти тему в cookie: JSON `200` або redirect `303` для форми |
-| `POST` | `/auth/register` | Реєстрація, bcrypt-хеш пароля, JWT cookie (`201`) |
-| `POST` | `/auth/login` | Перевірка облікових даних і JWT cookie (`200`) |
-| `GET` | `/auth/me` | Захищений JWT-маршрут: `200` або `401` |
-| `POST` | `/auth/logout` | Очистити JWT cookie (`204`) |
-| `GET` | `/favicon.ico` | ICO favicon зі статичної папки `public` |
-| `GET` | `/assets/favicon.svg` | Додатковий SVG favicon |
-| `GET` | `/assets/css/styles.css` | Спільні стилі сторінок |
-| `GET` | `/assets/css/demo.css` | Стилі демо |
-| `GET` | `/assets/js/demo.js` | Клієнтська логіка інтерактивного демо |
+| `GET` | `/` | Original plain-text root response |
+| `GET` | `/demo` | Interactive PUG dashboard |
+| `GET` | `/demo/icon` | Favicon preview |
+| `GET` | `/users` | PUG directory when requesting HTML; otherwise JSON |
+| `GET` | `/users/:userId` | PUG details or JSON |
+| `GET` | `/articles` | EJS directory when requesting HTML; otherwise JSON |
+| `GET` | `/articles/:articleId` | EJS details or JSON |
+| `GET` | `/favicon.ico` | ICO favicon |
+| `GET` | `/assets/favicon.svg` | SVG favicon |
+| `GET` | `/assets/css/styles.css` | Shared responsive styles |
+| `GET` | `/assets/css/demo.css` | Dashboard styles |
+| `GET` | `/assets/js/demo.js` | Dashboard JavaScript |
 
-## Приклади запитів через curl
+### Authentication and preferences
 
-Запустіть сервер в окремому терміналі, а потім:
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/theme` | Read the selected theme (JSON) |
+| `POST` | `/theme` | Save `light` or `dark`; JSON `200` or form redirect `303` |
+| `POST` | `/auth/register` | Register, hash password, and set JWT cookie (`201`) |
+| `POST` | `/auth/login` | Verify credentials and set JWT cookie (`200`) |
+| `GET` | `/auth/me` | JWT-protected account endpoint (`200` or `401`) |
+| `POST` | `/auth/logout` | Clear JWT cookie (`204`) |
+
+### REST resources and sessions
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/users` | Create user (`201`) |
+| `PUT` | `/users/:userId` | Update user |
+| `DELETE` | `/users/:userId` | Delete user (`204`) |
+| `POST` | `/articles` | Create article (`201`) |
+| `PUT` | `/articles/:articleId` | Update article |
+| `DELETE` | `/articles/:articleId` | Delete article (`204`) |
+| `POST` | `/users/strict` | Earlier educational Basic-header authentication example |
+| `POST` | `/articles/strict` | Earlier educational Basic-header authentication example |
+| `GET` | `/session` | Increment session visit counter |
+| `DELETE` | `/session` | Reset current session (`204`) |
+
+The Basic-header examples are separate from JWT authentication and remain available for compatibility with earlier exercises.
+
+## Example: authenticate using cookies
+
+Start the server in another terminal, then run:
 
 ```bash
-# Реєстрація й збереження HttpOnly cookie у тимчасовому файлі
 COOKIE_JAR="$(mktemp)"
 TEST_USER="student_$(date +%s)"
 
@@ -90,10 +111,10 @@ curl -i -c "$COOKIE_JAR" \
   -d "{\"username\":\"$TEST_USER\",\"password\":\"SafePass123\"}" \
   http://localhost:3000/auth/register
 
-# Доступ із JWT cookie (200)
+# Authenticated request (HTTP 200)
 curl -i -b "$COOKIE_JAR" http://localhost:3000/auth/me
 
-# Вихід і перевірка відсутності доступу (401)
+# Sign out; the protected endpoint will then return HTTP 401
 curl -i -X POST -b "$COOKIE_JAR" -c "$COOKIE_JAR" \
   http://localhost:3000/auth/logout
 curl -i -b "$COOKIE_JAR" http://localhost:3000/auth/me
@@ -101,36 +122,38 @@ curl -i -b "$COOKIE_JAR" http://localhost:3000/auth/me
 rm -f "$COOKIE_JAR"
 ```
 
-## Автоматичні перевірки
+## Testing and CI
 
 ```bash
 npm test
 ```
 
-**100 тестів у 11 файлах**: 52 перевірки з попереднього ДЗ, 5 — favicon, 8 — Cookies/тема, 10 — JWT, 13 — інтерактивне демо й навігація, 12 — спільний адаптивний header. Використовуються Vitest та Supertest. GitHub Actions CI повторює тести на Node.js 24 для Pull Requests до `main`.
+**100 automated tests across 11 files:** 52 existing Express tests, 5 favicon tests, 8 theme/cookie tests, 10 JWT tests, 13 interactive demo tests, and 12 shared-header tests. Vitest and Supertest cover both API responses and server-rendered HTML.
 
-## Архітектура
+GitHub Actions runs syntax checks and the complete test suite on Node.js 24 for pushes and pull requests targeting `main`.
+
+## Project structure
 
 ```text
 src/
-├── __test__/       # Vitest / Supertest
-├── config/         # JWT і тема
-├── controllers/    # REST, cookies, auth
-├── data/           # Дані в пам'яті
-├── middlewares/    # JWT, логування, сесії, валідація
-├── public/         # favicon.ico, favicon.svg, CSS, JS
-├── routes/         # API і сторінки Demo
-├── utils/          # Допоміжні функції
-├── views/          # PUG і EJS
-└── server.mjs      # Конфігурація Express і запуск
+├── __test__/       # Vitest and Supertest
+├── config/         # JWT and theme settings
+├── controllers/    # Resources, preferences, and authentication
+├── data/           # In-memory stores
+├── middlewares/    # Auth, validation, logging, sessions
+├── public/         # Favicon, CSS, browser JavaScript
+├── routes/         # API and page routes
+├── utils/          # Shared helpers
+├── views/          # PUG and EJS templates
+└── server.mjs      # Express setup and HTTP server
 ```
 
-## Обмеження й безпека
+## Security and limitations
 
-- Навчальний проєкт: користувачі, статті та облікові записи зберігаються **в пам'яті** й зникають після перезапуску сервера. Для сесій використовується стандартне сховище Express, не призначене для production.
-- JWT підписується HS256, перевіряється middleware і має строк дії 1 годину. Паролі зберігаються лише у вигляді bcrypt-хешів.
-- Cookies налаштовані з `HttpOnly` та `SameSite=Lax`; у production-режимі використовується `Secure`. Для реального продукту також потрібні HTTPS, захист від CSRF, rate limiting, постійне сховище та керування секретами.
-- Попередні навчальні `Basic`-маршрути (`/users/strict`, `/articles/strict`) **не є** JWT-автентифікацією і залишені для сумісності з попереднім ДЗ.
+- This is an educational application, **not a production authentication service**. Accounts and other in-memory records are lost on restart; Express's default session store is not production-ready.
+- JWTs use HS256 signatures, issuer validation, and a one-hour expiration. Passwords are stored as bcrypt hashes, not plaintext.
+- Authentication and theme cookies use `HttpOnly` and `SameSite=Lax`. Their `Secure` flag is enabled in production mode.
+- A production deployment would additionally require HTTPS, durable account/session storage, CSRF protection, rate limiting, and managed secrets. Do not commit `JWT_SECRET` or other credentials.
 
 ---
 
