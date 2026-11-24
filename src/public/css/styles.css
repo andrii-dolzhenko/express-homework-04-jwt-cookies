@@ -464,3 +464,90 @@ html[data-theme="dark"] .site-footer {
   .theme-form { width: 100%; }
   .theme-btn { flex: 1; }
 }
+
+/* HW04: stable shared navigation layout on all six rendered pages. */
+.header-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(12px, 2vw, 24px);
+}
+
+.header-inner .brand {
+  grid-column: 1;
+  justify-self: start;
+  min-width: 0;
+}
+
+.header-inner .brand-copy { min-width: 0; }
+.header-inner .brand-copy small { white-space: nowrap; }
+
+.header-inner .site-nav {
+  grid-column: 2;
+  justify-self: center;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: max-content;
+}
+
+.header-inner .site-nav .nav-link {
+  flex: 0 0 auto;
+  min-width: 82px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.header-inner .theme-form {
+  grid-column: 3;
+  justify-self: end;
+  flex-wrap: nowrap;
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Medium screens: same two-row header across Demo, Users, Articles, and Icon. */
+@media (max-width: 1050px) {
+  .header-inner { grid-template-columns: minmax(0, 1fr) auto; row-gap: 12px; }
+  .header-inner .brand { grid-column: 1; grid-row: 1; }
+  .header-inner .theme-form { grid-column: 2; grid-row: 1; }
+  .header-inner .site-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    justify-self: center;
+  }
+}
+
+/* Small screens: stacked, full-width navigation without overflow or jumping. */
+@media (max-width: 540px) {
+  .header-inner { grid-template-columns: minmax(0, 1fr); row-gap: 12px; }
+  .header-inner .brand { grid-column: 1; grid-row: 1; }
+  .header-inner .brand-copy small { white-space: normal; }
+  .header-inner .site-nav {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .header-inner .site-nav .nav-link {
+    min-width: 0;
+    flex: 1 1 0;
+    padding-inline: 6px;
+  }
+  .header-inner .theme-form {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: end;
+    width: auto;
+  }
+  .header-inner .theme-btn { flex: 0 0 auto; }
+}
+
+/* Keep the header aligned when switching between short and long pages. */
+html {
+  scrollbar-gutter: stable;
+}
