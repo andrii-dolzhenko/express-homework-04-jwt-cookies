@@ -1,5 +1,5 @@
 doctype html
-html(lang="en")
+html(lang="en" data-theme=theme)
   head
     meta(charset="utf-8")
     meta(name="viewport" content="width=device-width, initial-scale=1")
@@ -20,6 +20,10 @@ html(lang="en")
           nav.site-nav(aria-label="Main navigation")
             a.nav-link(href="/users" aria-current="page") Users
             a.nav-link(href="/articles") Articles
+          form.theme-form(action="/theme" method="post" aria-label="Choose color theme")
+            input(type="hidden" name="next" value=currentPath)
+            button.theme-btn(type="submit" name="theme" value="light" aria-pressed=(theme === 'light')) Light
+            button.theme-btn(type="submit" name="theme" value="dark" aria-pressed=(theme === 'dark')) Dark
       main.container.page-content
         section.page-heading(aria-labelledby="page-title")
           p.eyebrow PUG · SERVER-RENDERED
