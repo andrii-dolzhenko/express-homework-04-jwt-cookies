@@ -17,3 +17,8 @@ coverage/
 # Local development secrets
 .env
 .env.local
+
+# Local secrets; never commit credentials.
+.env
+.env.*
+!.env.example
