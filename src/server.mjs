@@ -60,7 +60,12 @@ Routes:
   GET, POST           /users, /articles
   GET, PUT, DELETE    /users/:userId, /articles/:articleId
   POST                /users/strict, /articles/strict
-  GET, DELETE         /session  (server-side session visits)`)
+  GET, DELETE         /session  (server-side session visits)
+  GET                 /demo, /demo/icon  (interactive pages)
+  GET, POST           /theme  (theme cookie)
+  POST                /auth/register, /auth/login, /auth/logout
+  GET                 /auth/me  (JWT-protected)
+  GET                 /favicon.ico, /assets/...  (static files)`)
   console.log(`
 Middleware:
   logRequests          Request metadata and redacted POST/PUT bodies

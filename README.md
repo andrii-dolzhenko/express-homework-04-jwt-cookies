@@ -1,175 +1,137 @@
-# Express.js · Homework 04 · Static Files, Cookies & JWT
+# ДЗ 63.1 — Робота зі статичними файлами, Cookies та JWT на сервері Express
 
-An Express 5 application with server-rendered PUG and EJS pages, a persistent
-Light/Dark theme via cookies, JWT registration/login, and a protected endpoint.
-This is a **preliminary HW04 implementation** based on presentation slide 45.
-It will be checked against the Monday lecture and official LMS specification.
+**Express Studio E4** — навчальний застосунок на Node.js 24 та Express 5. Проєкт продовжує попередні ДЗ: зберігає REST CRUD для користувачів і статей, рендеринг PUG/EJS, middleware та сесії. У ДЗ 63.1 додано favicon, збереження теми в cookies і JWT-автентифікацію. Для демонстрації реалізовано інтерактивну сторінку `/demo`.
 
-## Features
+## Реалізовані вимоги ДЗ 63.1
 
-- Four server-rendered HTML pages: PUG users, EJS articles (list + details)
-- Shared responsive CSS and `/favicon.ico` on every page (original SVG retained)
-- User preference cookie `hw04.theme` (`light` or `dark`) via `cookie-parser`
-- JWT-based account registration/login and authentication middleware
-- JWT stored in an HttpOnly cookie `hw04.token`, with an optional Bearer header
-- Passwords hashed with `bcryptjs`; user accounts kept in memory
-- Existing REST CRUD, logging, validation, article access checks, and sessions
+- **Статичні файли:** `src/public/favicon.ico` доступний за `/favicon.ico` та підключений у всіх PUG/EJS HTML-шаблонах. Стилі й клієнтський JS передаються через `express.static()`.
+- **Cookies:** `cookie-parser` зчитує вибір теми (`light` або `dark`) з cookie `hw04.theme`. Маршрут `POST /theme` зберігає тему; вона застосовується на сторінках PUG, EJS і демо.
+- **JWT:** `POST /auth/register` і `POST /auth/login` створюють підписаний JWT. Middleware `requireJwt` перевіряє токен для `GET /auth/me`. Токен зберігається в cookie `hw04.token` з атрибутом `HttpOnly`.
+- **Додатково:** паролі зберігаються як bcrypt-хеші; передбачені вихід з облікового запису, валідація введення, захист від повторної реєстрації однакового username та автоматичні тести.
 
-## Requirements / install / run
+## Встановлення та запуск
 
-Node.js 24, Yarn Classic 1.22.22, Express 5. This coursework project is for
-local development, not public production hosting.
+**Передумови:** Node.js 24 і npm. Для відтворюваного встановлення використовується Yarn Classic 1.22.22 і файл `yarn.lock`.
 
 ```bash
+git clone https://github.com/andrii-dolzhenko/express-homework-04-jwt-cookies.git
+cd express-homework-04-jwt-cookies
+
 npm exec --yes --package=yarn@1.22.22 -- yarn install --frozen-lockfile
 npm test
-npm start
+
+# Для поточного запуску створюємо локальний секрет JWT.
+# Не додавайте реальний секрет до Git-репозиторію.
+JWT_SECRET="$(openssl rand -hex 32)" npm start
 ```
 
-Open <http://localhost:3000/users> and <http://localhost:3000/articles>. Use the
-Light/Dark buttons to store your preferred appearance. The chosen theme persists
-across pages. Run a second terminal for the API commands below.
+Відкрийте **http://localhost:3000/demo**. Сервер використовує порт `3000`. Для перевірки шаблонів напряму також доступні `/users` і `/articles` (у браузері сторінки віддаються як HTML).
 
-To keep JWTs valid across server restarts, set a local secret before running:
+Якщо змінна `JWT_SECRET` не задана, застосунок створює випадковий ключ під час запуску. Після перезапуску попередні JWT перестануть бути дійсними. `NODE_ENV=production` вмикає атрибут `Secure` для cookies, тому для локального HTTP не встановлюйте цей режим.
 
-```bash
-export JWT_SECRET="$(openssl rand -hex 32)"
-npm start
-```
+## Інтерактивне демо
 
-Without `JWT_SECRET`, a secure random in-process secret is generated, so tokens
-are invalidated when the server restarts. Never commit an actual secret.
+На сторінці `/demo` можна послідовно перевірити:
 
-## Routes
+1. Перемикання теми **Light / Dark**, оновлення сторінки й переходи між Users (PUG) та Articles (EJS).
+2. Реєстрацію: username довжиною 3–32 символи (латинські літери, цифри, `_`, `-`) та пароль довжиною 8–72 символи.
+3. Виклик захищеного `GET /auth/me`: після входу відповідь `200`, без авторизації — `401`.
+4. Вихід через `POST /auth/logout`, після якого доступ до `/auth/me` зникає.
+5. Повторний вхід і окремий лічильник відвідувань на базі `express-session`.
 
-| Method | Route | Response / purpose |
+Сторінка `/demo/icon` показує favicon із можливістю повернутися до демо. Спільний адаптивний header використовується на Demo, PUG та EJS-сторінках. Усі кнопки Light/Dark звертаються до одного серверного механізму збереження теми.
+
+**Це реальне локальне демо Express, а не статичний макет.** GitHub Pages не запускає Node.js, тому авторизація та серверні сесії працюють після локального запуску `npm start`.
+
+## HTTP-маршрути
+
+| Метод | Маршрут | Призначення / результат |
 | --- | --- | --- |
-| GET | `/` | Existing plain-text root response |
-| GET | `/users` | PUG HTML with `Accept: text/html`, otherwise JSON user list |
-| GET | `/users/:userId` | PUG user detail page or JSON user object |
-| POST | `/users` | Create user, JSON, status 201 |
-| PUT | `/users/:userId` | Update user, JSON |
-| DELETE | `/users/:userId` | Remove user, 204 |
-| POST | `/users/strict` | Existing demo Basic auth route |
-| GET | `/articles` | EJS HTML with `Accept: text/html`, otherwise JSON article list |
-| GET | `/articles/:articleId` | EJS article detail page or JSON object |
-| POST | `/articles` | Create article, JSON, status 201 |
-| PUT | `/articles/:articleId` | Update article, JSON |
-| DELETE | `/articles/:articleId` | Remove article, 204 |
-| POST | `/articles/strict` | Existing demo Basic auth route |
-| GET | `/session` | Increment session visit count |
-| DELETE | `/session` | Delete current session, 204 |
-| GET | `/theme` | Current selected theme as JSON |
-| POST | `/theme` | Save `light`/`dark` cookie; JSON 200 or HTML form redirect 303 |
-| POST | `/auth/register` | Register username/password; hash password, set JWT cookie, 201 |
-| POST | `/auth/login` | Verify credentials; set JWT cookie, 200 |
-| GET | `/auth/me` | JWT-protected current account, 200 or 401 |
-| POST | `/auth/logout` | Clear JWT cookie, 204 |
-| GET | `/favicon.ico` | ICO icon served from `src/public/` |
-| GET | `/assets/css/styles.css` | Responsive stylesheet |
-| GET | `/assets/favicon.svg` | Preserved SVG favicon |
+| `GET` | `/` | Початкова текстова відповідь Express |
+| `GET` | `/demo` | Інтерактивне демо (PUG) |
+| `GET` | `/demo/icon` | Сторінка перегляду favicon (PUG) |
+| `GET` | `/users` | Список користувачів: PUG при `Accept: text/html`, інакше JSON |
+| `GET` | `/users/:userId` | Користувач за ID: PUG або JSON |
+| `POST` | `/users` | Створити користувача (`201`) |
+| `PUT` | `/users/:userId` | Оновити користувача |
+| `DELETE` | `/users/:userId` | Видалити користувача (`204`) |
+| `POST` | `/users/strict` | Навчальна демонстрація Basic Authorization |
+| `GET` | `/articles` | Список статей: EJS при `Accept: text/html`, інакше JSON |
+| `GET` | `/articles/:articleId` | Стаття за ID: EJS або JSON |
+| `POST` | `/articles` | Створити статтю (`201`) |
+| `PUT` | `/articles/:articleId` | Оновити статтю |
+| `DELETE` | `/articles/:articleId` | Видалити статтю (`204`) |
+| `POST` | `/articles/strict` | Навчальна демонстрація Basic Authorization |
+| `GET` | `/session` | Збільшити лічильник відвідувань у сесії |
+| `DELETE` | `/session` | Скинути поточну сесію (`204`) |
+| `GET` | `/theme` | Отримати поточну тему у форматі JSON |
+| `POST` | `/theme` | Зберегти тему в cookie: JSON `200` або redirect `303` для форми |
+| `POST` | `/auth/register` | Реєстрація, bcrypt-хеш пароля, JWT cookie (`201`) |
+| `POST` | `/auth/login` | Перевірка облікових даних і JWT cookie (`200`) |
+| `GET` | `/auth/me` | Захищений JWT-маршрут: `200` або `401` |
+| `POST` | `/auth/logout` | Очистити JWT cookie (`204`) |
+| `GET` | `/favicon.ico` | ICO favicon зі статичної папки `public` |
+| `GET` | `/assets/favicon.svg` | Додатковий SVG favicon |
+| `GET` | `/assets/css/styles.css` | Спільні стилі сторінок |
+| `GET` | `/assets/css/demo.css` | Стилі демо |
+| `GET` | `/assets/js/demo.js` | Клієнтська логіка інтерактивного демо |
 
-All data stores use in-memory Maps. Records and registered accounts are lost after
-a process restart. The application retains the previous HW03 session cookie
-name (`hw03.sid`) to preserve its original regression tests.
+## Приклади запитів через curl
 
-## API examples
+Запустіть сервер в окремому терміналі, а потім:
 
 ```bash
-# Create an account and keep its JWT cookie
-curl -i -c cookies.txt -H 'Content-Type: application/json' \
-  -d '{"username":"student1","password":"SafePass123!"}' \
+# Реєстрація й збереження HttpOnly cookie у тимчасовому файлі
+COOKIE_JAR="$(mktemp)"
+TEST_USER="student_$(date +%s)"
+
+curl -i -c "$COOKIE_JAR" \
+  -H 'Content-Type: application/json' \
+  -d "{\"username\":\"$TEST_USER\",\"password\":\"SafePass123\"}" \
   http://localhost:3000/auth/register
 
-# Authenticated request using the stored cookie
-curl -i -b cookies.txt http://localhost:3000/auth/me
+# Доступ із JWT cookie (200)
+curl -i -b "$COOKIE_JAR" http://localhost:3000/auth/me
 
-# Save and read a preferred theme
-curl -i -c theme-cookies.txt -H 'Content-Type: application/json' \
-  -H 'Accept: application/json' -d '{"theme":"dark"}' \
-  http://localhost:3000/theme
-curl -i -b theme-cookies.txt http://localhost:3000/theme
+# Вихід і перевірка відсутності доступу (401)
+curl -i -X POST -b "$COOKIE_JAR" -c "$COOKIE_JAR" \
+  http://localhost:3000/auth/logout
+curl -i -b "$COOKIE_JAR" http://localhost:3000/auth/me
 
-# Logout
-curl -i -X POST -b cookies.txt http://localhost:3000/auth/logout
+rm -f "$COOKIE_JAR"
 ```
 
-## Security / limitations
-
-- Passwords are hashed, and the JWT is signed with HS256 and expires after 1 hour.
-- Cookies use HttpOnly and SameSite=Lax. `Secure` is enabled in production mode;
-  localhost HTTP uses `Secure=false`.
-- Cookie auth on state-changing routes needs CSRF mitigation in production.
-- No database, password reset, rate limiting, or production session store.
-- The previous demo `Basic` auth remains separate from the new JWT mechanism.
-- The public GitHub Pages preview from HW03 does not run this backend; HW04 has
-  **no published live backend or Pages demo yet**.
-
-## Automated tests
+## Автоматичні перевірки
 
 ```bash
 npm test
 ```
 
-Expected preliminary suite: 52 existing HW03 tests + 5 favicon + 8 theme +
-10 JWT tests = **75 tests**. Tests use Vitest and Supertest.
+**100 тестів у 11 файлах**: 52 перевірки з попереднього ДЗ, 5 — favicon, 8 — Cookies/тема, 10 — JWT, 13 — інтерактивне демо й навігація, 12 — спільний адаптивний header. Використовуються Vitest та Supertest. GitHub Actions CI повторює тести на Node.js 24 для Pull Requests до `main`.
 
-## Structure
+## Архітектура
 
 ```text
 src/
-├── __test__/          # Existing tests + HW04 features
-├── config/            # JWT and theme configuration
-├── controllers/       # REST CRUD, auth, theme handlers
-├── data/              # Users, articles, in-memory accounts
-├── middlewares/       # Logging, validation, sessions, JWT, theme
-├── public/            # favicon.ico, favicon.svg, CSS
-├── routes/            # Users, articles, auth, theme, session
-├── utils/             # Accept: text/html detection
-├── views/             # PUG user pages and EJS article pages
-└── server.mjs         # Express setup and server
+├── __test__/       # Vitest / Supertest
+├── config/         # JWT і тема
+├── controllers/    # REST, cookies, auth
+├── data/           # Дані в пам'яті
+├── middlewares/    # JWT, логування, сесії, валідація
+├── public/         # favicon.ico, favicon.svg, CSS, JS
+├── routes/         # API і сторінки Demo
+├── utils/          # Допоміжні функції
+├── views/          # PUG і EJS
+└── server.mjs      # Конфігурація Express і запуск
 ```
+
+## Обмеження й безпека
+
+- Навчальний проєкт: користувачі, статті та облікові записи зберігаються **в пам'яті** й зникають після перезапуску сервера. Для сесій використовується стандартне сховище Express, не призначене для production.
+- JWT підписується HS256, перевіряється middleware і має строк дії 1 годину. Паролі зберігаються лише у вигляді bcrypt-хешів.
+- Cookies налаштовані з `HttpOnly` та `SameSite=Lax`; у production-режимі використовується `Secure`. Для реального продукту також потрібні HTTPS, захист від CSRF, rate limiting, постійне сховище та керування секретами.
+- Попередні навчальні `Basic`-маршрути (`/users/strict`, `/articles/strict`) **не є** JWT-автентифікацією і залишені для сумісності з попереднім ДЗ.
 
 ---
 
 Copyright © 2026 Andrii Dolzhenko.
-
-## Local interactive demo (optional)
-
-Start the Express backend (`npm start`) and open **http://localhost:3000/demo**.
-The interactive dashboard calls the actual backend; it does not simulate JWT.
-
-1. Switch Light/Dark and open Users (PUG) or Articles (EJS) to confirm the cookie.
-2. Register a unique username (3–32 letters, numbers, `_` or `-`) with a password
-   8–72 characters long. The server stores only a bcrypt password hash.
-3. Check the protected `/auth/me` endpoint: it responds `200` when signed in.
-4. Sign out and check again: it responds `401` without a JWT.
-5. Switch to Sign in to repeat the flow and optionally test the HW03 session counter.
-
-GET `/demo` renders a PUG dashboard. Static assets are served at
-`/assets/js/demo.js` and `/assets/css/demo.css`. The dashboard uses
-`fetch` with same-origin cookies and never reads the HttpOnly JWT token.
-
-**Note:** This is an **optional local teaching demo**, not an additional
-requirement from the presentation. GitHub Pages cannot execute Express,
-so a Pages-hosted copy would only be a static visual preview.
-
-
-## Demo navigation
-
-The **Express Studio** logo and the **Demo** link on all four PUG/EJS user/article
-pages return to `/demo`. The user and article list pages also show a visible
-"Back to demo" link. The **Site icon** tile on `/demo` opens `/demo/icon`, a
-navigable PUG preview of the real `/favicon.ico` file. The original favicon
-remains directly available at `/favicon.ico`, as required by the assignment.
-
-
-## Unified responsive header
-
-All six server-rendered pages (Demo, Site icon, two PUG pages, two EJS pages)
-use the same header: logo on the left, **Demo / Users / Articles** centered,
-and Light/Dark controls on the right. At medium widths the navigation moves to
-a centered second row; on narrow mobile screens the header stacks into three
-consistent rows. All theme buttons write the same validated cookie, including
-on `/demo` and `/demo/icon` (with safe local form redirects). The inline theme
-control on the Demo dashboard also updates header button state without a reload.
